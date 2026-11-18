@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Fridge Forward</title></head>
+<body>
+  <h1>Fridge Forward</h1>
+
+  <h2>What's in your fridge?</h2>
+  <form method="post" action="{% url 'add_ingredient' %}">
+    {% csrf_token %}
+    <input name="names" list="known" placeholder="e.g. eggs, milk, cheese" autofocus autocomplete="off">
+    <button type="submit">Add</button>
+    <datalist id="known">
+      {% for i in known_ingredients %}<option value="{{ i.name }}">{% endfor %}
+    </datalist>
+  </form>
+
+  <ul>
+    {% for item in pantry %}
+      <li>
+        {{ item.ingredient.name }}
+        <form method="post" action="{% url 'remove_ingredient' item.pk %}" style="display:inline">
+          {% csrf_token %}<button type="submit">x</button>
+        </form>
+      </li>
+    {% empty %}
+      <li>Nothing yet.</li>
+    {% endfor %}
+  </ul>
+
+  <h2>You can make</h2>
+  {% if recipes %}
+    <ul>
+      {% for r in recipes %}
+        <li><strong>{{ r.name }}</strong> ({{ r.ingredients.all|join:", " }})
+          {% if r.instructions %}<br><small>{{ r.instructions }}</small>{% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No recipes match your ingredients.</p>
+  {% endif %}
+</body>
+</html>
