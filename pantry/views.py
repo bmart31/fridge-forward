@@ -1,4 +1,5 @@
-from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib import messages
+from django.shortcuts import redirect, render
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 
@@ -47,5 +48,9 @@ def add_ingredient(request):
 
 @require_POST
 def remove_ingredient(request, pk):
-    get_object_or_404(PantryItem, pk=pk).delete()
+    item = PantryItem.objects.select_related("ingredient").filter(pk=pk).first()
+    if item:
+        name = item.ingredient.name
+        item.delete()
+        messages.success(request, f"Removed {name}")
     return after_change(request)

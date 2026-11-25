@@ -25,10 +25,35 @@ class AddIngredientTests(TestCase):
         )
 
     def test_remove(self):
-        self.client.post(reverse("add_ingredient"), {"names": "eggs"})
+        self.client.post(reverse("add_ingredient"), {"names": "tomato"})
         item = PantryItem.objects.get()
-        self.client.post(reverse("remove_ingredient", args=[item.pk]))
+        resp = self.client.post(reverse("remove_ingredient", args=[item.pk]), follow=True)
         self.assertFalse(PantryItem.objects.exists())
+        self.assertContains(resp, "Removed tomato")
+
+    def test_remove_button_is_post_with_csrf_and_accessible_label(self):
+        self.client.post(reverse("add_ingredient"), {"names": "tomato"})
+        item = PantryItem.objects.get()
+        resp = self.client.get(reverse("home"))
+        self.assertContains(resp, f'method="post" action="{reverse("remove_ingredient", args=[item.pk])}"')
+        self.assertContains(resp, 'name="csrfmiddlewaretoken"')
+        self.assertContains(resp, 'aria-label="Remove tomato"')
+
+    def test_remove_requires_post(self):
+        self.client.post(reverse("add_ingredient"), {"names": "tomato"})
+        item = PantryItem.objects.get()
+        resp = self.client.get(reverse("remove_ingredient", args=[item.pk]))
+        self.assertEqual(resp.status_code, 405)
+        self.assertTrue(PantryItem.objects.filter(pk=item.pk).exists())
+
+    def test_remove_missing_item_does_not_crash(self):
+        resp = self.client.post(reverse("remove_ingredient", args=[99999]), follow=True)
+        self.assertEqual(resp.status_code, 200)
+        self.assertNotContains(resp, "Removed")
+
+        htmx_resp = self.client.post(reverse("remove_ingredient", args=[99999]), HTTP_HX_REQUEST="true")
+        self.assertEqual(htmx_resp.status_code, 200)
+        self.assertNotContains(htmx_resp, "Removed")
 
 
 class MatchingTests(TestCase):
