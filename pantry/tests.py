@@ -79,6 +79,65 @@ class MatchingTests(TestCase):
         self.assertContains(resp, "No recipes match")
 
 
+class SuggestionsUpdateTests(TestCase):
+    """SCRUM-56 / SR-2.5: suggestions update straight after add/remove."""
+
+    CARD = "<h3>Cheese toast</h3>"
+
+    def setUp(self):
+        Recipe.objects.all().delete()
+        make_recipe("Cheese toast", "bread", "cheese")
+        PantryItem.objects.create(ingredient=Ingredient.objects.get(name="bread"))
+
+    def add(self, names, **headers):
+        return self.client.post(reverse("add_ingredient"), {"names": names}, **headers)
+
+    def remove(self, name, **headers):
+        item = PantryItem.objects.get(ingredient__name=name)
+        return self.client.post(reverse("remove_ingredient", args=[item.pk]), **headers)
+
+    def test_sr_2_5_add_last_missing_ingredient_recipe_appears(self):
+        self.assertNotContains(self.client.get(reverse("home")), self.CARD, html=True)
+        resp = self.add("cheese")
+        self.assertRedirects(resp, reverse("home"))
+        self.assertContains(self.client.get(resp.url), self.CARD, html=True)
+
+    def test_sr_2_5_remove_ingredient_recipe_disappears(self):
+        self.add("cheese")
+        self.assertContains(self.client.get(reverse("home")), self.CARD, html=True)
+        resp = self.remove("cheese")
+        self.assertRedirects(resp, reverse("home"))
+        page = self.client.get(resp.url)
+        self.assertNotContains(page, self.CARD, html=True)
+        self.assertContains(page, "No recipes match")
+
+    def test_sr_2_5_htmx_add_returns_updated_suggestions_without_full_page(self):
+        resp = self.add("cheese", HTTP_HX_REQUEST="true")
+        self.assertEqual(resp.status_code, 200)
+        self.assertTemplateUsed(resp, "pantry/_fridge_and_suggestions.html")
+        self.assertTemplateNotUsed(resp, "pantry/home.html")
+        self.assertContains(resp, self.CARD, html=True)
+        self.assertContains(resp, 'aria-label="Remove cheese"')
+
+    def test_sr_2_5_htmx_remove_returns_updated_suggestions(self):
+        self.add("cheese")
+        resp = self.remove("cheese", HTTP_HX_REQUEST="true")
+        self.assertEqual(resp.status_code, 200)
+        self.assertNotContains(resp, self.CARD, html=True)
+        self.assertContains(resp, "No recipes match")
+
+    def test_sr_2_5_home_page_is_never_cached(self):
+        cache_control = self.client.get(reverse("home"))["Cache-Control"]
+        for directive in ("no-cache", "no-store", "max-age=0"):
+            self.assertIn(directive, cache_control)
+
+    def test_sr_2_5_forms_work_without_javascript(self):
+        resp = self.client.get(reverse("home"))
+        self.assertContains(resp, f'action="{reverse("add_ingredient")}"')
+        item = PantryItem.objects.get()
+        self.assertContains(resp, f'action="{reverse("remove_ingredient", args=[item.pk])}"')
+
+
 class PerformanceTests(TestCase):
     """SCRUM-54 / SR-2.3: suggestions stay fast with a large recipe database."""
 

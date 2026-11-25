@@ -19,37 +19,19 @@
   <h1>Fridge Forward</h1>
 
   <h2>What's in your fridge?</h2>
-  <form method="post" action="{% url 'add_ingredient' %}">
+  {# Works as a normal form without JavaScript; with HTMX it updates the page in place (SR-2.5). #}
+  <form method="post" action="{% url 'add_ingredient' %}"
+        hx-post="{% url 'add_ingredient' %}" hx-target="#fridge-and-suggestions" hx-swap="outerHTML"
+        hx-on::after-request="if (event.detail.successful) this.reset()">
     {% csrf_token %}
     <input name="names" list="known" placeholder="e.g. eggs, milk, cheese" autofocus autocomplete="off">
     <button type="submit">Add</button>
-    <datalist id="known">
-      {% for i in known_ingredients %}<option value="{{ i.name }}">{% endfor %}
-    </datalist>
   </form>
 
-  <ul>
-    {% for item in pantry %}
-      <li>
-        {{ item.ingredient.name }}
-        <form method="post" action="{% url 'remove_ingredient' item.pk %}" style="display:inline">
-          {% csrf_token %}<button type="submit">x</button>
-        </form>
-      </li>
-    {% empty %}
-      <li>Nothing yet.</li>
-    {% endfor %}
-  </ul>
+  {% include "pantry/_fridge_and_suggestions.html" %}
 
-  <h2>You can make</h2>
-  {% if recipes %}
-    <div class="recipes">
-      {% for r in recipes %}
-        {% include "pantry/_recipe_card.html" with recipe=r %}
-      {% endfor %}
-    </div>
-  {% else %}
-    <p>No recipes match your ingredients.</p>
-  {% endif %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/2.0.3/htmx.min.js"
+          integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq"
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </body>
 </html>
