@@ -28,21 +28,49 @@ class AddIngredientTests(TestCase):
 
 
 class MatchingTests(TestCase):
+    """SCRUM-53: makeable_recipes() compares the pantry against each recipe.
+
+    Test names carry SR-2.2 (recipe matching) / SR-3.1 (only makeable
+    recipes shown) so they can be traced back to the requirements.
+    """
+
     def setUp(self):
-        self.omelette = make_recipe("Omelette", "eggs", "butter")
+        # Migration 0002 seeds real recipes; remove them so each test
+        # controls exactly which recipes exist.
+        Recipe.objects.all().delete()
+        self.omelette = make_recipe("Omelette", "egg", "butter")
         self.toast = make_recipe("Cheese toast", "bread", "cheese")
 
     def have(self, *names):
         for n in names:
             PantryItem.objects.create(ingredient=Ingredient.objects.get_or_create(name=n)[0])
 
-    def test_only_fully_makeable_recipes(self):  # KUR-02, KUR-03
-        self.have("eggs", "butter", "bread")
+    def names(self):
+        return sorted(r.name for r in makeable_recipes())
+
+    def test_sr_2_2_sr_3_1_all_ingredients_returns_recipe(self):
+        self.have("egg", "butter")
         self.assertEqual(makeable_recipes(), [self.omelette])
 
-    def test_no_match_returns_nothing(self):  # KUR-03
-        self.have("eggs")
+    def test_sr_2_2_sr_3_1_missing_one_ingredient_excludes_recipe(self):
+        self.have("egg")  # no butter
         self.assertEqual(makeable_recipes(), [])
+
+    def test_sr_2_2_extra_ingredients_still_returns_recipe(self):
+        self.have("egg", "butter", "milk", "onion")
+        self.assertEqual(makeable_recipes(), [self.omelette])
+
+    def test_sr_2_2_sr_3_1_empty_pantry_returns_nothing(self):
+        self.assertEqual(makeable_recipes(), [])
+
+    def test_sr_2_2_sr_3_1_only_makeable_subset_returned(self):
+        make_recipe("Pancakes", "egg", "milk", "flour")
+        make_recipe("Buttered toast", "bread", "butter")
+        self.have("egg", "butter", "bread")
+        self.assertEqual(self.names(), ["Buttered toast", "Omelette"])
+
+    def test_sr_3_1_no_match_shows_message_on_home(self):
+        self.have("egg")
         resp = self.client.get(reverse("home"))
         self.assertContains(resp, "No recipes match")
 
