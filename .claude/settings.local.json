@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__claude_ai_Atlassian_MCP__getJiraIssue",
+      "mcp__claude_ai_Atlassian_MCP__transitionJiraIssue",
+      "mcp__claude_ai_Atlassian_MCP__addOrEditJiraIssueComment",
+      "Bash(git checkout *)"
+    ]
+  }
+}
