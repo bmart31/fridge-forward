@@ -2,7 +2,7 @@
 
 Tell Fridge Forward what's in your fridge and it tells you what you can cook with it, and only that.
 
-> **Status: early MVP.** It is deliberately rough so that it can be improved step by step. There is no styling, no user accounts and only a small set of starter recipes. See [Known limitations & next steps](#known-limitations--next-steps).
+> **Status: early MVP.** It is deliberately rough so that it can be improved step by step. There is only minimal styling, no user accounts and a dataset of 39 recipes. See [Known limitations & next steps](#known-limitations--next-steps).
 
 ---
 
@@ -26,8 +26,8 @@ Tell Fridge Forward what's in your fridge and it tells you what you can cook wit
 
 Everything is on a single page (`/`):
 
-1. **Your fridge.** Type ingredients into the box and press Enter. You can add several at once by separating them with commas (`eggs, milk, cheese`). Each ingredient has an **x** button to remove it.
-2. **You can make.** This lists every recipe whose ingredients you *all* have. If nothing matches, it says *"No recipes match your ingredients."*
+1. **Your fridge.** Type ingredients into the box and press Enter. You can add several at once by separating them with commas (`eggs, milk, cheese`). Each ingredient has an **x** button to remove it. The suggestions below update straight away, without reloading the page.
+2. **You can make.** This lists every recipe whose ingredients you *all* have, as a card showing the recipe name, its ingredients and a numbered method behind a **Show method** toggle. If nothing matches, it says *"No recipes match your ingredients."*
 
 ### Key User Requirements
 
@@ -37,7 +37,7 @@ The app is built against these requirements. Every change should keep them worki
 |----|-------------|--------------|-----------|
 | KUR-01 | The user shall be able to record the ingredients they currently have. | `PantryItem` model, plus the add and remove views | `AddIngredientTests` |
 | KUR-02 | The user shall be able to receive recipe suggestions based on the ingredients they have recorded. | "You can make" section, filled by `makeable_recipes()` | `MatchingTests` |
-| KUR-03 | Only recipes that can be made with the ingredients they have are offered. If none match, none are offered. | `makeable_recipes()` returns a recipe only if **every** one of its ingredients is in the pantry | `test_only_fully_makeable_recipes`, `test_no_match_returns_nothing` |
+| KUR-03 | Only recipes that can be made with the ingredients they have are offered. If none match, none are offered. | `makeable_recipes()` returns a recipe only if **every** one of its ingredients is in the pantry | `MatchingTests` (`test_sr_2_2_*`, `test_sr_3_1_*`) |
 | KUR-04 | Ingredients can be added quickly and easily, with no instructions or training. | One autofocused text box, comma-separated entry, autocomplete from known ingredients, case and whitespace ignored | `test_add_comma_separated_and_normalised` |
 
 ---
@@ -49,7 +49,7 @@ The app is built against these requirements. Every change should keep them worki
 | Language | Python 3.9+ | Developed on 3.9.6 |
 | Framework | Django 4.2 (LTS) | Pinned in `requirements.txt`. 4.2 is the newest Django that supports Python 3.9. |
 | Database | SQLite | A single file (`db.sqlite3`) created on first `migrate`. It is not committed to git. |
-| Frontend | Plain Django templates | No JavaScript and no CSS framework yet |
+| Frontend | Plain Django templates + [HTMX](https://htmx.org) 2.0.3 | HTMX is loaded from cdnjs and only makes add/remove update the page in place. Everything still works with JavaScript turned off. No CSS framework. |
 
 The project uses **Django only**: there is no separate frontend framework or API layer. New features should stay inside that structure (models, views, templates, URLs).
 
@@ -157,6 +157,7 @@ All of these assume the virtual environment is active.
 | Create an admin user | `python manage.py createsuperuser` |
 | Interactive shell with Django loaded | `python manage.py shell` |
 | Load / refresh the recipe dataset | `python manage.py loaddata recipes` |
+| Time suggestions with 1,000 dummy recipes | `python manage.py benchmark_suggestions` (add `--recipes 10000` for more). Leaves your data unchanged. |
 | Reset the database completely | Delete `db.sqlite3`, then `python manage.py migrate` and `python manage.py loaddata recipes` |
 | Add a new Python dependency | `pip install <pkg>`, then add it with a version range to `requirements.txt` |
 
@@ -183,9 +184,14 @@ fridge-forward/
     ├── views.py                # home, add_ingredient, remove_ingredient
     ├── urls.py                 # URL routes for the views above
     ├── admin.py                # Registers models with the Django admin
-    ├── tests.py                # Tests, labelled with the KUR they cover
+    ├── benchmark.py            # Generates dummy recipes for performance checks
+    ├── tests.py                # Tests, labelled with the KUR/SR they cover
+    ├── management/commands/
+    │   └── benchmark_suggestions.py # `manage.py benchmark_suggestions`
     ├── templates/pantry/
-    │   └── home.html           # The single page
+    │   ├── home.html           # The single page
+    │   ├── _fridge_and_suggestions.html # Pantry list + suggestions (swapped in by HTMX)
+    │   └── _recipe_card.html   # One suggested recipe (name, ingredients, method)
     ├── fixtures/
     │   └── recipes.json        # The recipe dataset (load with `loaddata recipes`)
     └── migrations/
@@ -199,11 +205,22 @@ fridge-forward/
 | URL | Method | View | What it does |
 |-----|--------|------|--------------|
 | `/` | GET | `home` | Shows the pantry, the add box and matching recipes |
-| `/add/` | POST | `add_ingredient` | Adds one or more comma-separated ingredients, then redirects to `/` |
-| `/remove/<id>/` | POST | `remove_ingredient` | Removes a pantry item, then redirects to `/` |
+| `/add/` | POST | `add_ingredient` | Adds one or more comma-separated ingredients, then redirects to `/` (HTMX requests get the updated list and suggestions instead) |
+| `/remove/<id>/` | POST | `remove_ingredient` | Removes a pantry item, then redirects to `/` (HTMX requests get the updated list and suggestions instead) |
 | `/admin/` | GET/POST | Django admin | Manage recipes and ingredients |
 
 The add and remove routes use the standard *Post/Redirect/Get* pattern: they change data and then redirect, so refreshing the page never re-submits a form.
+
+### Live updates (SR-2.5)
+
+Suggestions always reflect the pantry as it is *now*:
+
+- Nothing is cached on the server. `page_context()` in `views.py` rebuilds the pantry list and runs `makeable_recipes()` on every request.
+- The home page is marked `never_cache`, so the browser's back button can't show out-of-date suggestions.
+- With JavaScript on, the add and remove forms are sent by HTMX (`hx-post`). The view sees the `HX-Request` header and returns only `_fridge_and_suggestions.html`, which HTMX swaps into the page. The add box is cleared and keeps focus, so you can keep typing.
+- With JavaScript off, or if HTMX fails to load, the same forms post normally and the redirect reloads the page.
+
+`SuggestionsUpdateTests` covers both paths: adding the last missing ingredient makes a recipe appear, and removing it makes it disappear.
 
 ---
 
@@ -227,19 +244,35 @@ name (unique, lowercase) ◄──ingredient (one-to-one)       name
 
 ### Matching logic (KUR-02 / KUR-03)
 
-All of it is in `pantry/services.py`:
+All of it is in `pantry/services.py`. It is a single database query:
 
-```python
-have = set of ingredient ids in the pantry
-for each recipe:
-    needed = set of that recipe's ingredient ids
-    if needed is not empty and needed ⊆ have:
-        include it
+```
+for each recipe, count:
+    needed  = how many ingredients it has
+    matched = how many of those are in the pantry
+keep it if needed > 0 and matched == needed
 ```
 
-A recipe is offered **only** if every ingredient it needs is in the pantry. Recipes with no ingredients are never offered. Extra ingredients in the pantry don't matter.
+A recipe is offered **only** if every ingredient it needs is in the pantry. Recipes with no ingredients are never offered. Extra ingredients in the pantry don't matter. Results are sorted by name.
 
-This runs in Python over every recipe. That is fine for hundreds of recipes. If the recipe list grows large it should move into a database query (see next steps).
+Only the matching recipes are fetched, and their ingredients are loaded with one `prefetch_related` query. `makeable_recipes()` therefore takes **at most 2 queries** and the home page **4 queries**, however many recipes there are. `PerformanceTests` checks this with `assertNumQueries`.
+
+### Recipe cards (SR-2.4)
+
+Each suggestion is rendered by `templates/pantry/_recipe_card.html`: the name as a heading, the ingredients as a list, and the method as numbered steps inside `<details><summary>Show method</summary>`. That keeps the page short, needs no JavaScript and works with screen readers. `Recipe.steps()` splits the free-text `instructions` into steps at line breaks and sentence ends (`.`, `!`, `?`). The page has a mobile viewport tag and a small inline stylesheet, so cards fit a phone-width screen.
+
+### Performance (SR-2.3)
+
+Requirement: suggestions return in under 2 seconds with a large recipe database. Measured with `python manage.py benchmark_suggestions` on 25 Nov 2026 (Python 3.9.6, Django 4.2, SQLite, Apple Silicon Mac):
+
+| Recipes | `makeable_recipes()` (median) | Home page view + render (worst of runs) | Queries | Suggestions shown |
+|---------|------------------------------|------------------------------------------|---------|-------------------|
+| 1,039   | 6.0 ms                        | 22.6 ms                                  | 4       | 88                |
+| 10,039  | 59.1 ms                       | 159.7 ms                                 | 4       | 950               |
+
+Both are far below the 2-second limit. For comparison, the previous Python-loop version of `makeable_recipes()` took 50.5 ms on the same 1,000-recipe data, so the database query is about 8× faster. `test_sr_2_3_home_page_with_1000_recipes_under_2_seconds` checks the limit on every test run.
+
+The command creates dummy recipes inside a transaction and rolls it back afterwards, so your database is left unchanged. It times the view directly, without the dev server or the browser, so real page loads add a little network and rendering time on top.
 
 ### Adding ingredients (KUR-04)
 
@@ -290,7 +323,7 @@ The 7 original recipes were also seeded by `pantry/migrations/0002_seed_recipes.
 python manage.py test
 ```
 
-Tests are in `pantry/tests.py`. Each test is labelled with the KUR it covers. Django creates a throwaway test database, so your local data is never touched.
+Tests are in `pantry/tests.py`. Each test is labelled with the KUR or SR it covers (SR test names start with e.g. `test_sr_2_3_`). Django creates a throwaway test database, so your local data is never touched.
 
 **Rule of thumb:** if you change behaviour connected to a KUR, add or update a test for it. KUR-03 matters most, because offering a recipe the user *can't* make is the main failure this app exists to avoid.
 
@@ -336,7 +369,7 @@ These are known gaps, not bugs. They are good first tasks for someone new to the
 - [x] ~~**Only 7 recipes.**~~ There are now 39 in `pantry/fixtures/recipes.json` (SCRUM-52).
 
 **Technical**
-- [ ] **No styling at all.** Add a CSS file (Django `static/`) and make it work on a phone.
-- [ ] **Matching runs in Python** over all recipes. Move it to a database query if recipes reach the thousands.
+- [ ] **Minimal styling.** There is only a small inline stylesheet so recipe cards fit a phone. *Next step: a proper CSS file in Django `static/`.*
+- [x] ~~**Matching runs in Python** over all recipes.~~ It is now a single database query and stays well under 2 s with 10,000 recipes (SCRUM-54).
 - [ ] **Not production-ready yet.** `SECRET_KEY`, `DEBUG` and `ALLOWED_HOSTS` now come from environment variables, but nothing else has been set up for deployment (static files, HTTPS settings, a production database). Note that the original generated key is still in git history, so it must never be used anywhere.
 - [ ] **No CI.** Running `python manage.py test` on every PR would be cheap insurance.

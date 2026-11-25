@@ -1,0 +1,40 @@
+{# SR-2.5: the part of the home page that changes when the pantry changes. #}
+{# Rendered inside home.html, and returned on its own to HTMX requests from add/remove. #}
+<div id="fridge-and-suggestions">
+  {% if messages %}
+    <ul role="alert">
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <datalist id="known">
+    {% for i in known_ingredients %}<option value="{{ i.name }}">{% endfor %}
+  </datalist>
+
+  <ul>
+    {% for item in pantry %}
+      <li>
+        {{ item.ingredient.name }}
+        <form method="post" action="{% url 'remove_ingredient' item.pk %}" style="display:inline"
+              hx-post="{% url 'remove_ingredient' item.pk %}" hx-target="#fridge-and-suggestions" hx-swap="outerHTML">
+          {% csrf_token %}<button type="submit" aria-label="Remove {{ item.ingredient.name }}">x</button>
+        </form>
+      </li>
+    {% empty %}
+      <li>Nothing yet.</li>
+    {% endfor %}
+  </ul>
+
+  <h2>You can make</h2>
+  {% if recipes %}
+    <div class="recipes">
+      {% for r in recipes %}
+        {% include "pantry/_recipe_card.html" with recipe=r %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No recipes match your ingredients.</p>
+  {% endif %}
+</div>
