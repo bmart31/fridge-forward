@@ -5,9 +5,17 @@
   <h1>Fridge Forward</h1>
 
   <h2>What's in your fridge?</h2>
+  {% if messages %}
+    <ul role="alert">
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
   <form method="post" action="{% url 'add_ingredient' %}">
     {% csrf_token %}
-    <input name="names" list="known" placeholder="e.g. eggs, milk, cheese" autofocus autocomplete="off">
+    <label for="ingredient-input">Add an ingredient</label>
+    <input id="ingredient-input" name="names" list="known" placeholder="e.g. eggs, milk, cheese" autofocus autocomplete="off">
     <button type="submit">Add</button>
     <datalist id="known">
       {% for i in known_ingredients %}<option value="{{ i.name }}">{% endfor %}

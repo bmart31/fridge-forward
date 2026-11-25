@@ -13,12 +13,30 @@ def make_recipe(name, *ingredients):
 
 
 class AddIngredientTests(TestCase):
+    def test_home_has_visible_ingredient_label(self):
+        resp = self.client.get(reverse("home"))
+        self.assertContains(resp, '<label for="ingredient-input">Add an ingredient</label>', html=True)
+
+    def test_add_one_item(self):  # KUR-01, KUR-04
+        self.client.post(reverse("add_ingredient"), {"names": "  Egg  "})
+        self.assertEqual(
+            list(PantryItem.objects.values_list("ingredient__name", flat=True)),
+            ["egg"],
+        )
+
     def test_add_comma_separated_and_normalised(self):  # KUR-01, KUR-04
         self.client.post(reverse("add_ingredient"), {"names": " Eggs , milk,,eggs"})
         self.assertEqual(
             sorted(PantryItem.objects.values_list("ingredient__name", flat=True)),
             ["eggs", "milk"],
         )
+
+    def test_empty_input_is_rejected(self):
+        for raw in ("", "   ", ", , "):
+            with self.subTest(raw=raw):
+                resp = self.client.post(reverse("add_ingredient"), {"names": raw}, follow=True)
+                self.assertFalse(PantryItem.objects.exists())
+                self.assertContains(resp, "Please enter at least one ingredient.")
 
     def test_remove(self):
         self.client.post(reverse("add_ingredient"), {"names": "eggs"})
