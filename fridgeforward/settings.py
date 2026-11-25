@@ -10,22 +10,41 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+from django.core.exceptions import ImproperlyConfigured
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load settings from a .env file in the project root, if there is one.
+# Real environment variables take precedence over values in .env.
+# See .env.example for the variables this project reads.
+load_dotenv(BASE_DIR / '.env')
 
-# Quick-start development settings - unsuitable for production
+
+# Security settings come from the environment, never from this file.
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-^r&6fzq()gg-!--%b@kb3uzs6q(hm17_f#sx1n%r-d_-q+xo0d'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+if not SECRET_KEY:
+    raise ImproperlyConfigured(
+        'DJANGO_SECRET_KEY is not set. Copy .env.example to .env and add a '
+        'secret key (see "Getting started" in the README).'
+    )
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# Off unless explicitly turned on, so a missing setting fails safe.
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False').strip().lower() in ('1', 'true', 'yes', 'on')
 
-ALLOWED_HOSTS = []
+# Comma-separated list, e.g. "example.com,www.example.com".
+# Left empty while DEBUG is on, Django still allows localhost.
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get('DJANGO_ALLOWED_HOSTS', '').split(',')
+    if host.strip()
+]
 
 
 # Application definition

@@ -69,28 +69,52 @@ Nothing else needs installing globally. Django is installed inside a project-loc
 **macOS / Linux**
 
 ```bash
-git clone <repo-url> fridge-forward
+git clone https://github.com/bmart31/fridge-forward.git fridge-forward
 cd fridge-forward
 
 python3 -m venv .venv              # create an isolated Python environment
 source .venv/bin/activate          # activate it (your prompt shows "(.venv)")
-pip install -r requirements.txt    # install Django
-python manage.py migrate           # create the database and load the starter recipes
+pip install -r requirements.txt    # install Django and python-dotenv
+cp .env.example .env               # create your local settings file
 ```
 
 **Windows (PowerShell)**
 
 ```powershell
-git clone <repo-url> fridge-forward
+git clone https://github.com/bmart31/fridge-forward.git fridge-forward
 cd fridge-forward
 
 py -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+Copy-Item .env.example .env
+```
+
+### 3. Add a secret key to `.env`
+
+Django needs a secret key, and it is **not** stored in the repo. Generate one:
+
+```bash
+python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+```
+
+Open `.env` and paste the output after `DJANGO_SECRET_KEY=` (no quotes or spaces needed). Leave `DJANGO_DEBUG=True` for local development.
+
+| Variable | Required | What it does |
+|----------|----------|--------------|
+| `DJANGO_SECRET_KEY` | Yes | Django's secret key. Everyone generates their own. Never share or commit it. |
+| `DJANGO_DEBUG` | No (default `False`) | `True` shows detailed error pages. Only use it locally. |
+| `DJANGO_ALLOWED_HOSTS` | No | Comma-separated hostnames, e.g. `example.com,www.example.com`. Can stay empty locally while debug is on. |
+
+`.env` is git-ignored. Real environment variables take precedence over it, which is how a hosting service would supply these settings.
+
+Then create the database and load the starter recipes:
+
+```bash
 python manage.py migrate
 ```
 
-### 3. Run it
+### 4. Run it
 
 ```bash
 python manage.py runserver
@@ -98,13 +122,13 @@ python manage.py runserver
 
 Open **http://127.0.0.1:8000/**. Stop the server with `Ctrl+C`.
 
-### 4. Quick check that everything works
+### 5. Quick check that everything works
 
 1. Type `bread, cheese` and press Enter.
 2. **Cheese toast** should appear under "You can make".
 3. Remove `cheese`. The page should now say *"No recipes match your ingredients."*
 
-### 5. (Optional) Admin access
+### 6. (Optional) Admin access
 
 To add or edit recipes through Django's built-in admin site:
 
@@ -144,6 +168,7 @@ fridge-forward/
 ├── requirements.txt            # Python dependencies: keep this up to date
 ├── README.md
 ├── .gitignore                  # ignores .venv/, db.sqlite3, __pycache__, .env
+├── .env.example                # template for your local .env (secret key, debug, hosts)
 │
 ├── fridgeforward/              # Project configuration (not app logic)
 │   ├── settings.py             # Installed apps, database, etc.
@@ -254,6 +279,7 @@ Tests are in `pantry/tests.py`. Each test is labelled with the KUR it covers. Dj
 - If you changed `models.py`: run `makemigrations` and **commit the migration files** along with your change.
 - If you added a dependency: update `requirements.txt` in the same commit.
 - Never commit `db.sqlite3`, `.venv/`, or `.env` (they're already in `.gitignore`).
+- If you add a new setting that differs between machines or holds a secret, read it from an environment variable in `settings.py` and add it, with no real value, to `.env.example`.
 
 ---
 
@@ -262,6 +288,9 @@ Tests are in `pantry/tests.py`. Each test is labelled with the KUR it covers. Dj
 | Problem | Fix |
 |---------|-----|
 | `ModuleNotFoundError: No module named 'django'` | The virtual environment isn't active. Run `source .venv/bin/activate` (Windows: `.venv\Scripts\Activate.ps1`). |
+| `ImproperlyConfigured: DJANGO_SECRET_KEY is not set` | You don't have a `.env` file, or its `DJANGO_SECRET_KEY=` line is empty. See [step 3 of Getting started](#3-add-a-secret-key-to-env). |
+| `ModuleNotFoundError: No module named 'dotenv'` | Run `pip install -r requirements.txt` again: `python-dotenv` was added after you first set up. |
+| `CommandError: You must set settings.ALLOWED_HOSTS if DEBUG is False.` | Set `DJANGO_DEBUG=True` in `.env` for local development. |
 | `no such table: pantry_ingredient` | You haven't run `python manage.py migrate`. |
 | `Error: That port is already in use.` | Another server is running. Stop it, or use `python manage.py runserver 8080`. |
 | "You can make" is empty but I expected a recipe | You need *every* ingredient, spelled the same way. `egg` ≠ `eggs`. Check the recipe's ingredients in `/admin/`. |
@@ -284,5 +313,5 @@ These are known gaps, not bugs. They are good first tasks for someone new to the
 **Technical**
 - [ ] **No styling at all.** Add a CSS file (Django `static/`) and make it work on a phone.
 - [ ] **Matching runs in Python** over all recipes. Move it to a database query if recipes reach the thousands.
-- [ ] **Not production-ready.** `settings.py` still has the generated `SECRET_KEY` and `DEBUG = True`. Before deploying, load them from environment variables (a `.env` file is already git-ignored for this) and set `ALLOWED_HOSTS`.
+- [ ] **Not production-ready yet.** `SECRET_KEY`, `DEBUG` and `ALLOWED_HOSTS` now come from environment variables, but nothing else has been set up for deployment (static files, HTTPS settings, a production database). Note that the original generated key is still in git history, so it must never be used anywhere.
 - [ ] **No CI.** Running `python manage.py test` on every PR would be cheap insurance.
