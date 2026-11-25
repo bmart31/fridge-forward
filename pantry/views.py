@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
@@ -37,11 +38,16 @@ def home(request):
 def add_ingredient(request):
     # KUR-04: one text box; comma-separated lets you add several at once.
     raw = request.POST.get("names", "")
-    for name in raw.split(","):
-        name = normalise(name)
-        if name:
-            ingredient, _ = Ingredient.objects.get_or_create(name=name)
-            PantryItem.objects.get_or_create(ingredient=ingredient)
+    names = [name for name in (normalise(part) for part in raw.split(",")) if name]
+    if not names:
+        # Shown by _fridge_and_suggestions.html, so it appears for both
+        # HTMX swaps and normal form posts.
+        messages.error(request, "Please enter at least one ingredient.")
+        return after_change(request)
+
+    for name in names:
+        ingredient, _ = Ingredient.objects.get_or_create(name=name)
+        PantryItem.objects.get_or_create(ingredient=ingredient)
     return after_change(request)
 
 

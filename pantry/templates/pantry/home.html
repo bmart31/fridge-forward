@@ -24,7 +24,8 @@
         hx-post="{% url 'add_ingredient' %}" hx-target="#fridge-and-suggestions" hx-swap="outerHTML"
         hx-on::after-request="if (event.detail.successful) this.reset()">
     {% csrf_token %}
-    <input name="names" list="known" placeholder="e.g. eggs, milk, cheese" autofocus autocomplete="off">
+    <label for="ingredient-input">Add an ingredient</label>
+    <input id="ingredient-input" name="names" list="known" placeholder="e.g. eggs, milk, cheese" autofocus autocomplete="off">
     <button type="submit">Add</button>
   </form>
 

@@ -1,6 +1,14 @@
 {# SR-2.5: the part of the home page that changes when the pantry changes. #}
 {# Rendered inside home.html, and returned on its own to HTMX requests from add/remove. #}
 <div id="fridge-and-suggestions">
+  {% if messages %}
+    <ul role="alert">
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
   <datalist id="known">
     {% for i in known_ingredients %}<option value="{{ i.name }}">{% endfor %}
   </datalist>
