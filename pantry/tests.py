@@ -1,3 +1,4 @@
+from django.core.management import call_command
 from django.test import TestCase
 from django.urls import reverse
 
@@ -44,3 +45,46 @@ class MatchingTests(TestCase):
         self.assertEqual(makeable_recipes(), [])
         resp = self.client.get(reverse("home"))
         self.assertContains(resp, "No recipes match")
+
+
+class RecipeFixtureTests(TestCase):
+    """SCRUM-52: the recipe dataset in pantry/fixtures/recipes.json."""
+
+    def setUp(self):
+        call_command("loaddata", "recipes", verbosity=0)
+
+    def test_at_least_25_recipes(self):
+        self.assertGreaterEqual(Recipe.objects.count(), 25)
+
+    def test_every_recipe_is_complete(self):
+        for recipe in Recipe.objects.prefetch_related("ingredients"):
+            with self.subTest(recipe=recipe.name):
+                self.assertTrue(recipe.name.strip())
+                self.assertTrue(recipe.instructions.strip())
+                self.assertGreaterEqual(recipe.ingredients.count(), 1)
+
+    def test_ingredient_names_are_normalised(self):
+        for name in Ingredient.objects.values_list("name", flat=True):
+            self.assertEqual(name, name.strip().lower())
+
+    def test_some_recipes_need_only_a_few_ingredients(self):
+        short = [r for r in Recipe.objects.prefetch_related("ingredients") if r.ingredients.count() <= 3]
+        self.assertGreaterEqual(len(short), 5)
+
+    def test_loading_twice_does_not_duplicate(self):
+        recipes, ingredients = Recipe.objects.count(), Ingredient.objects.count()
+        call_command("loaddata", "recipes", verbosity=0)
+        self.assertEqual(Recipe.objects.count(), recipes)
+        self.assertEqual(Ingredient.objects.count(), ingredients)
+
+    def test_fixture_recipes_match_a_pantry(self):  # KUR-02 with real data
+        for n in ["bread", "cheese"]:
+            PantryItem.objects.create(ingredient=Ingredient.objects.get(name=n))
+        self.assertIn("Cheese toast", [r.name for r in makeable_recipes()])
+
+
+class SingularSeedTests(TestCase):
+    def test_seed_ingredients_are_singular(self):  # migration 0003
+        names = set(Ingredient.objects.values_list("name", flat=True))
+        self.assertTrue({"egg", "tomato"} <= names)
+        self.assertFalse({"eggs", "tomatoes"} & names)

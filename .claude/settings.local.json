@@ -4,7 +4,10 @@
       "mcp__claude_ai_Atlassian_MCP__getJiraIssue",
       "mcp__claude_ai_Atlassian_MCP__transitionJiraIssue",
       "mcp__claude_ai_Atlassian_MCP__addOrEditJiraIssueComment",
-      "Bash(git checkout *)"
+      "Bash(git checkout *)",
+      "Bash(grep -n -A6 DATABASES fridgeforward/settings.py; ls .venv/bin/python 2>/dev/null; sed -n 55,75p README.md)",
+      "Read(//Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/bin/**)",
+      "Bash(.venv/bin/python /private/tmp/claude-501/-Users-brycemartland-fridge-forward-fridge-forward/73718d23-280d-40a0-8c3a-7754d6657190/scratchpad/build_fixture.py pantry/fixtures/recipes.json)"
     ]
   }
 }

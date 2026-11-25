@@ -1,0 +1,1040 @@
+[
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "apple"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "avocado"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "baked beans"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "banana"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "bell pepper"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "bread"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "butter"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "carrot"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "cheese"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "chicken"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "chickpea"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "cocoa powder"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "cucumber"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "egg"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "feta"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "flour"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "garlic"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "honey"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "lemon"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "lime"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "mayonnaise"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "milk"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "oats"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "olive oil"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "onion"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "orange"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "pasta"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "peanut butter"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "pesto"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "potato"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "red lentil"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "rice"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "salt"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "soy sauce"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "sugar"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "sweetcorn"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "tahini"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "tomato"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "tortilla"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "tuna"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "vegetable stock"
+    }
+  },
+  {
+    "model": "pantry.ingredient",
+    "fields": {
+      "name": "yoghurt"
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 1,
+    "fields": {
+      "name": "Scrambled eggs",
+      "instructions": "Whisk the eggs with a pinch of salt. Melt the butter in a pan over a low heat, add the eggs and stir gently until just set.",
+      "ingredients": [
+        [
+          "egg"
+        ],
+        [
+          "butter"
+        ],
+        [
+          "salt"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 2,
+    "fields": {
+      "name": "Cheese toast",
+      "instructions": "Toast one side of the bread under the grill. Turn it over, cover with grated cheese and grill until bubbling.",
+      "ingredients": [
+        [
+          "bread"
+        ],
+        [
+          "cheese"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 3,
+    "fields": {
+      "name": "Omelette",
+      "instructions": "Beat the eggs. Melt the butter in a frying pan, pour in the eggs and cook until almost set. Sprinkle over the cheese, fold in half and serve.",
+      "ingredients": [
+        [
+          "egg"
+        ],
+        [
+          "butter"
+        ],
+        [
+          "cheese"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 4,
+    "fields": {
+      "name": "Pasta with tomato sauce",
+      "instructions": "Boil the pasta. Meanwhile fry sliced garlic in olive oil, add chopped tomatoes and simmer for 10 minutes. Toss the drained pasta in the sauce.",
+      "ingredients": [
+        [
+          "pasta"
+        ],
+        [
+          "tomato"
+        ],
+        [
+          "garlic"
+        ],
+        [
+          "olive oil"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 5,
+    "fields": {
+      "name": "Pancakes",
+      "instructions": "Whisk the flour, eggs and milk into a smooth batter. Melt a little butter in a frying pan, add a ladle of batter and cook for a minute on each side.",
+      "ingredients": [
+        [
+          "flour"
+        ],
+        [
+          "egg"
+        ],
+        [
+          "milk"
+        ],
+        [
+          "butter"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 6,
+    "fields": {
+      "name": "Banana smoothie",
+      "instructions": "Blend the banana and milk until smooth.",
+      "ingredients": [
+        [
+          "banana"
+        ],
+        [
+          "milk"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 7,
+    "fields": {
+      "name": "Fried rice",
+      "instructions": "Fry the chopped onion, add cooked rice and stir-fry until hot. Push to one side, scramble the eggs in the space, then mix through with the soy sauce.",
+      "ingredients": [
+        [
+          "rice"
+        ],
+        [
+          "egg"
+        ],
+        [
+          "soy sauce"
+        ],
+        [
+          "onion"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 8,
+    "fields": {
+      "name": "Boiled egg",
+      "instructions": "Lower the egg into boiling water. Cook for 6 minutes for a soft yolk or 9 minutes for hard-boiled.",
+      "ingredients": [
+        [
+          "egg"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 9,
+    "fields": {
+      "name": "Buttered toast",
+      "instructions": "Toast the bread and spread with butter while it is still hot.",
+      "ingredients": [
+        [
+          "bread"
+        ],
+        [
+          "butter"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 10,
+    "fields": {
+      "name": "Beans on toast",
+      "instructions": "Heat the beans in a pan. Toast the bread and pour the beans over the top.",
+      "ingredients": [
+        [
+          "baked beans"
+        ],
+        [
+          "bread"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 11,
+    "fields": {
+      "name": "Garlic bread",
+      "instructions": "Mash crushed garlic into soft butter. Spread on slices of bread and bake at 200C for 8-10 minutes until golden.",
+      "ingredients": [
+        [
+          "bread"
+        ],
+        [
+          "butter"
+        ],
+        [
+          "garlic"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 12,
+    "fields": {
+      "name": "French toast",
+      "instructions": "Whisk the egg and milk in a shallow dish. Soak the bread in it, then fry in butter until golden on both sides.",
+      "ingredients": [
+        [
+          "bread"
+        ],
+        [
+          "egg"
+        ],
+        [
+          "milk"
+        ],
+        [
+          "butter"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 13,
+    "fields": {
+      "name": "Cheese and tomato sandwich",
+      "instructions": "Slice the cheese and tomato and layer them between two slices of bread.",
+      "ingredients": [
+        [
+          "bread"
+        ],
+        [
+          "cheese"
+        ],
+        [
+          "tomato"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 14,
+    "fields": {
+      "name": "Peanut butter toast",
+      "instructions": "Toast the bread and spread thickly with peanut butter.",
+      "ingredients": [
+        [
+          "bread"
+        ],
+        [
+          "peanut butter"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 15,
+    "fields": {
+      "name": "Avocado toast",
+      "instructions": "Mash the avocado with a pinch of salt. Toast the bread and spread the avocado on top.",
+      "ingredients": [
+        [
+          "avocado"
+        ],
+        [
+          "bread"
+        ],
+        [
+          "salt"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 16,
+    "fields": {
+      "name": "Tuna mayo sandwich",
+      "instructions": "Drain the tuna and mix it with mayonnaise. Spread between two slices of bread.",
+      "ingredients": [
+        [
+          "bread"
+        ],
+        [
+          "tuna"
+        ],
+        [
+          "mayonnaise"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 17,
+    "fields": {
+      "name": "Cheese quesadilla",
+      "instructions": "Scatter grated cheese over half a tortilla and fold it over. Dry-fry in a pan for 2 minutes on each side until the cheese melts.",
+      "ingredients": [
+        [
+          "tortilla"
+        ],
+        [
+          "cheese"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 18,
+    "fields": {
+      "name": "Jacket potato with cheese",
+      "instructions": "Prick the potato and bake at 200C for about an hour until soft inside. Split it open, add butter and top with grated cheese.",
+      "ingredients": [
+        [
+          "potato"
+        ],
+        [
+          "cheese"
+        ],
+        [
+          "butter"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 19,
+    "fields": {
+      "name": "Mashed potato",
+      "instructions": "Peel and chop the potatoes and boil for 15-20 minutes until tender. Drain, then mash with butter, a splash of milk and salt.",
+      "ingredients": [
+        [
+          "potato"
+        ],
+        [
+          "butter"
+        ],
+        [
+          "milk"
+        ],
+        [
+          "salt"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 20,
+    "fields": {
+      "name": "Roast potatoes",
+      "instructions": "Chop the potatoes, parboil for 8 minutes and drain. Toss in olive oil and salt and roast at 200C for 40-45 minutes, turning once.",
+      "ingredients": [
+        [
+          "potato"
+        ],
+        [
+          "olive oil"
+        ],
+        [
+          "salt"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 21,
+    "fields": {
+      "name": "Spanish omelette",
+      "instructions": "Slowly fry thinly sliced potato and onion in olive oil until soft. Add to beaten eggs, return to the pan and cook gently, then flip to cook the other side.",
+      "ingredients": [
+        [
+          "egg"
+        ],
+        [
+          "potato"
+        ],
+        [
+          "onion"
+        ],
+        [
+          "olive oil"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 22,
+    "fields": {
+      "name": "Pasta with pesto",
+      "instructions": "Boil the pasta, drain, keeping a splash of the water, and stir through the pesto.",
+      "ingredients": [
+        [
+          "pasta"
+        ],
+        [
+          "pesto"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 23,
+    "fields": {
+      "name": "Garlic and oil spaghetti",
+      "instructions": "Boil the pasta. Gently fry sliced garlic in plenty of olive oil until just golden, then toss with the drained pasta.",
+      "ingredients": [
+        [
+          "pasta"
+        ],
+        [
+          "garlic"
+        ],
+        [
+          "olive oil"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 24,
+    "fields": {
+      "name": "Macaroni cheese",
+      "instructions": "Boil the pasta. Melt the butter, stir in the flour, then whisk in the milk until thick. Stir in most of the cheese, mix with the pasta, top with the rest and grill until golden.",
+      "ingredients": [
+        [
+          "pasta"
+        ],
+        [
+          "cheese"
+        ],
+        [
+          "milk"
+        ],
+        [
+          "butter"
+        ],
+        [
+          "flour"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 25,
+    "fields": {
+      "name": "Tuna pasta",
+      "instructions": "Boil and drain the pasta and let it cool slightly. Mix with the drained tuna, sweetcorn and mayonnaise.",
+      "ingredients": [
+        [
+          "pasta"
+        ],
+        [
+          "tuna"
+        ],
+        [
+          "sweetcorn"
+        ],
+        [
+          "mayonnaise"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 26,
+    "fields": {
+      "name": "Tomato soup",
+      "instructions": "Soften the chopped onion and garlic in a pan. Add chopped tomatoes and the stock, simmer for 20 minutes, then blend until smooth.",
+      "ingredients": [
+        [
+          "tomato"
+        ],
+        [
+          "onion"
+        ],
+        [
+          "garlic"
+        ],
+        [
+          "vegetable stock"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 27,
+    "fields": {
+      "name": "Lentil soup",
+      "instructions": "Soften the chopped onion, carrot and garlic. Add the lentils and stock and simmer for 25 minutes until the lentils break down. Blend if you like.",
+      "ingredients": [
+        [
+          "red lentil"
+        ],
+        [
+          "onion"
+        ],
+        [
+          "carrot"
+        ],
+        [
+          "garlic"
+        ],
+        [
+          "vegetable stock"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 28,
+    "fields": {
+      "name": "Shakshuka",
+      "instructions": "Fry the onion, pepper and garlic until soft. Add chopped tomatoes and simmer until thick. Make hollows, crack in the eggs, cover and cook until the whites set.",
+      "ingredients": [
+        [
+          "egg"
+        ],
+        [
+          "tomato"
+        ],
+        [
+          "onion"
+        ],
+        [
+          "garlic"
+        ],
+        [
+          "bell pepper"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 29,
+    "fields": {
+      "name": "Chicken stir-fry",
+      "instructions": "Cook the rice. Stir-fry strips of chicken over a high heat until cooked through, add the sliced pepper and onion for 3 minutes, then the soy sauce. Serve on the rice.",
+      "ingredients": [
+        [
+          "chicken"
+        ],
+        [
+          "bell pepper"
+        ],
+        [
+          "onion"
+        ],
+        [
+          "soy sauce"
+        ],
+        [
+          "rice"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 30,
+    "fields": {
+      "name": "Roast chicken",
+      "instructions": "Rub the chicken with olive oil and salt. Put the halved lemon and garlic inside and roast at 190C for about 1.5 hours, until the juices run clear.",
+      "ingredients": [
+        [
+          "chicken"
+        ],
+        [
+          "lemon"
+        ],
+        [
+          "garlic"
+        ],
+        [
+          "olive oil"
+        ],
+        [
+          "salt"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 31,
+    "fields": {
+      "name": "Greek salad",
+      "instructions": "Chop the tomato, cucumber and onion into chunks. Crumble the feta on top and drizzle with olive oil.",
+      "ingredients": [
+        [
+          "tomato"
+        ],
+        [
+          "cucumber"
+        ],
+        [
+          "onion"
+        ],
+        [
+          "feta"
+        ],
+        [
+          "olive oil"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 32,
+    "fields": {
+      "name": "Guacamole",
+      "instructions": "Mash the avocado with lime juice and salt. Stir in finely chopped onion and tomato.",
+      "ingredients": [
+        [
+          "avocado"
+        ],
+        [
+          "lime"
+        ],
+        [
+          "onion"
+        ],
+        [
+          "tomato"
+        ],
+        [
+          "salt"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 33,
+    "fields": {
+      "name": "Hummus",
+      "instructions": "Blend the drained chickpeas with tahini, lemon juice, garlic and olive oil, adding a splash of water until smooth.",
+      "ingredients": [
+        [
+          "chickpea"
+        ],
+        [
+          "tahini"
+        ],
+        [
+          "lemon"
+        ],
+        [
+          "garlic"
+        ],
+        [
+          "olive oil"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 34,
+    "fields": {
+      "name": "Porridge",
+      "instructions": "Simmer the oats in the milk, stirring, for 4-5 minutes until thick and creamy.",
+      "ingredients": [
+        [
+          "oats"
+        ],
+        [
+          "milk"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 35,
+    "fields": {
+      "name": "Rice pudding",
+      "instructions": "Simmer the rice gently in the milk with the sugar, stirring often, for about 30 minutes until soft and creamy.",
+      "ingredients": [
+        [
+          "rice"
+        ],
+        [
+          "milk"
+        ],
+        [
+          "sugar"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 36,
+    "fields": {
+      "name": "Apple crumble",
+      "instructions": "Slice the apples into a dish. Rub the butter into the flour, then stir in the sugar and oats. Scatter over the apples and bake at 180C for 35 minutes.",
+      "ingredients": [
+        [
+          "apple"
+        ],
+        [
+          "flour"
+        ],
+        [
+          "butter"
+        ],
+        [
+          "sugar"
+        ],
+        [
+          "oats"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 37,
+    "fields": {
+      "name": "Fruit salad",
+      "instructions": "Chop the fruit into bite-sized pieces and mix together in a bowl.",
+      "ingredients": [
+        [
+          "apple"
+        ],
+        [
+          "banana"
+        ],
+        [
+          "orange"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 38,
+    "fields": {
+      "name": "Yoghurt with honey",
+      "instructions": "Spoon the yoghurt into a bowl and drizzle honey over the top.",
+      "ingredients": [
+        [
+          "yoghurt"
+        ],
+        [
+          "honey"
+        ]
+      ]
+    }
+  },
+  {
+    "model": "pantry.recipe",
+    "pk": 39,
+    "fields": {
+      "name": "Hot chocolate",
+      "instructions": "Warm the milk in a pan. Whisk in the cocoa powder and sugar until smooth and hot.",
+      "ingredients": [
+        [
+          "milk"
+        ],
+        [
+          "cocoa powder"
+        ],
+        [
+          "sugar"
+        ]
+      ]
+    }
+  }
+]

@@ -108,10 +108,11 @@ Open `.env` and paste the output after `DJANGO_SECRET_KEY=` (no quotes or spaces
 
 `.env` is git-ignored. Real environment variables take precedence over it, which is how a hosting service would supply these settings.
 
-Then create the database and load the starter recipes:
+Then create the database and load the recipe dataset:
 
 ```bash
 python manage.py migrate
+python manage.py loaddata recipes
 ```
 
 ### 4. Run it
@@ -155,7 +156,8 @@ All of these assume the virtual environment is active.
 | Apply migrations | `python manage.py migrate` |
 | Create an admin user | `python manage.py createsuperuser` |
 | Interactive shell with Django loaded | `python manage.py shell` |
-| Reset the database completely | Delete `db.sqlite3`, then `python manage.py migrate` |
+| Load / refresh the recipe dataset | `python manage.py loaddata recipes` |
+| Reset the database completely | Delete `db.sqlite3`, then `python manage.py migrate` and `python manage.py loaddata recipes` |
 | Add a new Python dependency | `pip install <pkg>`, then add it with a version range to `requirements.txt` |
 
 ---
@@ -184,9 +186,12 @@ fridge-forward/
     ├── tests.py                # Tests, labelled with the KUR they cover
     ├── templates/pantry/
     │   └── home.html           # The single page
+    ├── fixtures/
+    │   └── recipes.json        # The recipe dataset (load with `loaddata recipes`)
     └── migrations/
         ├── 0001_initial.py     # Creates the tables
-        └── 0002_seed_recipes.py# Loads the 7 starter recipes
+        ├── 0002_seed_recipes.py# Loads the 7 original starter recipes
+        └── 0003_singular_ingredient_names.py # eggs→egg, tomatoes→tomato
 ```
 
 ### URLs
@@ -250,13 +255,32 @@ There are two ways to add recipes.
 
 **1. Django admin (quickest for trying things out).** Go to `/admin/` → Recipes → Add. Pick ingredients from the list, or add new ones with the `+` button. Recipes added this way exist only in your local database.
 
-**2. Data migration (so everyone gets them).** Starter recipes are in `pantry/migrations/0002_seed_recipes.py`. Because migrations that have already run won't run again, **don't edit 0002**. Create a new one instead:
+**2. The recipe fixture (so everyone gets them).** The shared dataset is `pantry/fixtures/recipes.json`. Load it, or reload it after pulling changes, with:
 
 ```bash
-python manage.py makemigrations pantry --empty -n more_recipes
+python manage.py loaddata recipes
 ```
 
-Then copy the `seed`/`unseed` pattern from `0002_seed_recipes.py` into the new file. Use lowercase ingredient names: `apps.get_model` returns a "historical" model that skips the custom `save()`, so names are **not** normalised automatically inside migrations.
+Loading it twice is safe: it updates existing entries rather than duplicating them. The file has two kinds of entry:
+
+```json
+{ "model": "pantry.ingredient", "fields": { "name": "egg" } },
+{ "model": "pantry.recipe", "pk": 8, "fields": {
+    "name": "Boiled egg",
+    "instructions": "Lower the egg into boiling water...",
+    "ingredients": [["egg"]] } }
+```
+
+To add a recipe:
+- Give it the next unused `pk`. Recipes are matched by `pk`, so reusing one overwrites that recipe.
+- List ingredients by name, each wrapped in its own brackets: `[["egg"], ["milk"]]`. Every ingredient must also have its own `pantry.ingredient` entry in the file, or loading fails.
+- Use **simple, singular, lowercase** names (`egg`, `tomato`, `onion`, not `2 large eggs`). Matching is exact, so reuse names already in the file wherever you can.
+
+Run `python manage.py test` afterwards. `RecipeFixtureTests` checks that every recipe has a name, at least one ingredient and a method.
+
+> **Note:** the fixture uses recipe `pk`s 1 and up, so loading it overwrites any recipe you created in admin with the same id.
+
+The 7 original recipes were also seeded by `pantry/migrations/0002_seed_recipes.py`. The fixture contains the same recipes at `pk` 1–7, so the two agree.
 
 ---
 
@@ -295,7 +319,8 @@ Tests are in `pantry/tests.py`. Each test is labelled with the KUR it covers. Dj
 | `Error: That port is already in use.` | Another server is running. Stop it, or use `python manage.py runserver 8080`. |
 | "You can make" is empty but I expected a recipe | You need *every* ingredient, spelled the same way. `egg` ≠ `eggs`. Check the recipe's ingredients in `/admin/`. |
 | Windows: `Activate.ps1 cannot be loaded because running scripts is disabled` | Run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once, then try again. |
-| Something's badly broken locally | Delete `db.sqlite3` and run `python manage.py migrate` for a fresh start. |
+| `loaddata`: `Ingredient matching query does not exist` | A recipe uses an ingredient with no `pantry.ingredient` entry in `recipes.json`. Add one. |
+| Something's badly broken locally | Delete `db.sqlite3`, then run `python manage.py migrate` and `python manage.py loaddata recipes` for a fresh start. |
 
 ---
 
@@ -308,7 +333,7 @@ These are known gaps, not bugs. They are good first tasks for someone new to the
 - [ ] **Exact-name matching.** `egg` vs `eggs` and `tomato` vs `tomatoes` count as different ingredients. *Next step: an alias or plural table, or always choosing from the known list.*
 - [ ] **Staples count like any other ingredient.** If you didn't add `salt`, Scrambled eggs won't appear. *Next step: an "always have" flag for pantry staples.*
 - [ ] **No quantities.** "Have eggs" is all-or-nothing.
-- [ ] **Only 7 recipes**, and they can only be added through admin or migrations.
+- [x] ~~**Only 7 recipes.**~~ There are now 39 in `pantry/fixtures/recipes.json` (SCRUM-52).
 
 **Technical**
 - [ ] **No styling at all.** Add a CSS file (Django `static/`) and make it work on a phone.

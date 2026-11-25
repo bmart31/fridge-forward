@@ -5,9 +5,20 @@ def normalise(name):
     return name.strip().lower()
 
 
+class IngredientManager(models.Manager):
+    def get_by_natural_key(self, name):
+        return self.get(name=normalise(name))
+
+
 class Ingredient(models.Model):
     """An ingredient name. Shared by the pantry and recipes."""
     name = models.CharField(max_length=100, unique=True)
+
+    objects = IngredientManager()
+
+    def natural_key(self):
+        # Lets fixtures refer to ingredients by name, e.g. ["egg"], not by id.
+        return (self.name,)
 
     def save(self, *args, **kwargs):
         self.name = normalise(self.name)
