@@ -1,7 +1,11 @@
+import time
+from io import StringIO
+
 from django.core.management import call_command
 from django.test import TestCase
 from django.urls import reverse
 
+from .benchmark import create_dummy_recipes
 from .models import Ingredient, PantryItem, Recipe
 from .services import makeable_recipes
 
@@ -73,6 +77,99 @@ class MatchingTests(TestCase):
         self.have("egg")
         resp = self.client.get(reverse("home"))
         self.assertContains(resp, "No recipes match")
+
+
+class PerformanceTests(TestCase):
+    """SCRUM-54 / SR-2.3: suggestions stay fast with a large recipe database."""
+
+    # pantry list + matching recipes + their ingredients + autocomplete list
+    HOME_QUERIES = 4
+
+    def test_sr_2_3_query_count_does_not_grow_with_recipes(self):
+        PantryItem.objects.create(ingredient=Ingredient.objects.get(name="bread"))
+        PantryItem.objects.create(ingredient=Ingredient.objects.get(name="cheese"))
+        make_recipe("Cheese toast", "bread", "cheese")
+        with self.assertNumQueries(2):
+            makeable_recipes()
+        with self.assertNumQueries(self.HOME_QUERIES):
+            self.client.get(reverse("home"))
+
+        create_dummy_recipes(1000)
+        with self.assertNumQueries(2):
+            makeable_recipes()
+        with self.assertNumQueries(self.HOME_QUERIES):
+            self.client.get(reverse("home"))
+
+    def test_sr_2_3_home_page_with_1000_recipes_under_2_seconds(self):
+        expected = create_dummy_recipes(1000)
+        start = time.perf_counter()
+        resp = self.client.get(reverse("home"))
+        elapsed = time.perf_counter() - start
+        self.assertEqual(resp.status_code, 200)
+        self.assertLess(elapsed, 2.0)
+        dummy = [r for r in resp.context["recipes"] if r.name.startswith("Dummy recipe")]
+        self.assertGreater(expected, 0)
+        self.assertEqual(len(dummy), expected)
+
+    def test_sr_2_3_benchmark_command_runs_and_rolls_back(self):
+        before = Recipe.objects.count()
+        out = StringIO()
+        call_command("benchmark_suggestions", recipes=200, runs=1, stdout=out)
+        self.assertIn("PASS", out.getvalue())
+        self.assertEqual(Recipe.objects.count(), before)
+
+
+class RecipeCardTests(TestCase):
+    """SCRUM-55 / SR-2.4: each suggestion shows its name, ingredients and method."""
+
+    def setUp(self):
+        Recipe.objects.all().delete()
+        self.toast = make_recipe("Cheese toast", "bread", "cheese")
+        self.toast.instructions = "Toast the bread. Add the cheese! Grill until bubbling."
+        self.toast.save()
+        make_recipe("Jam toast", "bread", "jam")  # makeable, no method
+        for n in ["bread", "cheese", "jam"]:
+            PantryItem.objects.create(ingredient=Ingredient.objects.get(name=n))
+
+    def test_sr_2_4_steps_split_on_sentences_and_lines(self):
+        self.assertEqual(
+            self.toast.steps(),
+            ["Toast the bread.", "Add the cheese!", "Grill until bubbling."],
+        )
+        self.assertEqual(Recipe(instructions="Mix.\n\nBake for 1.5 hours").steps(), ["Mix.", "Bake for 1.5 hours"])
+        self.assertEqual(Recipe(instructions="  ").steps(), [])
+
+    def test_sr_2_4_card_shows_name_ingredients_and_numbered_method(self):
+        resp = self.client.get(reverse("home"))
+        self.assertTemplateUsed(resp, "pantry/_recipe_card.html")
+        self.assertContains(resp, "<h3>Cheese toast</h3>", html=True)
+        self.assertContains(resp, "<ul><li>bread</li><li>cheese</li></ul>", html=True)
+        self.assertContains(
+            resp,
+            "<ol><li>Toast the bread.</li><li>Add the cheese!</li><li>Grill until bubbling.</li></ol>",
+            html=True,
+        )
+
+    def test_sr_2_4_method_collapsed_behind_details(self):
+        resp = self.client.get(reverse("home"))
+        self.assertContains(resp, "<summary>Show method</summary>", count=2, html=True)
+        self.assertNotContains(resp, "<details open")
+
+    def test_sr_2_4_every_suggestion_has_all_three_parts(self):
+        resp = self.client.get(reverse("home"))
+        html = resp.content.decode()
+        cards = html.split('<article class="recipe-card">')[1:]
+        self.assertEqual(len(cards), len(resp.context["recipes"]))
+        for card in cards:
+            with self.subTest(card=card[:40]):
+                self.assertIn("<h3>", card)
+                self.assertIn("<h4>Ingredients</h4>", card)
+                self.assertIn("<summary>Show method</summary>", card)
+        self.assertContains(resp, "No method written yet.")  # Jam toast
+
+    def test_sr_2_4_page_has_mobile_viewport(self):
+        resp = self.client.get(reverse("home"))
+        self.assertContains(resp, 'name="viewport" content="width=device-width, initial-scale=1"')
 
 
 class RecipeFixtureTests(TestCase):

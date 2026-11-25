@@ -1,6 +1,20 @@
 <!doctype html>
 <html>
-<head><meta charset="utf-8"><title>Fridge Forward</title></head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fridge Forward</title>
+  <style>
+    body { max-width: 40rem; margin: 0 auto; padding: 0 1rem; font-family: system-ui, sans-serif; line-height: 1.5; }
+    input[name="names"] { width: 100%; max-width: 20rem; box-sizing: border-box; }
+    .recipes { display: grid; gap: 1rem; }
+    .recipe-card { border: 1px solid #ccc; border-radius: 8px; padding: 0.75rem 1rem; overflow-wrap: break-word; }
+    .recipe-card h3 { margin: 0 0 0.5rem; }
+    .recipe-card h4 { margin: 0.5rem 0 0.25rem; font-size: 1rem; }
+    .recipe-card ul, .recipe-card ol { margin: 0.25rem 0; padding-left: 1.5rem; }
+    .recipe-card summary { cursor: pointer; font-weight: 600; padding: 0.25rem 0; }
+  </style>
+</head>
 <body>
   <h1>Fridge Forward</h1>
 
@@ -29,13 +43,11 @@
 
   <h2>You can make</h2>
   {% if recipes %}
-    <ul>
+    <div class="recipes">
       {% for r in recipes %}
-        <li><strong>{{ r.name }}</strong> ({{ r.ingredients.all|join:", " }})
-          {% if r.instructions %}<br><small>{{ r.instructions }}</small>{% endif %}
-        </li>
+        {% include "pantry/_recipe_card.html" with recipe=r %}
       {% endfor %}
-    </ul>
+    </div>
   {% else %}
     <p>No recipes match your ingredients.</p>
   {% endif %}

@@ -1,3 +1,5 @@
+import re
+
 from django.db import models
 
 
@@ -41,6 +43,15 @@ class Recipe(models.Model):
     name = models.CharField(max_length=200)
     ingredients = models.ManyToManyField(Ingredient, related_name="recipes")
     instructions = models.TextField(blank=True)
+
+    def steps(self):
+        """SR-2.4: the method split into steps, one per line or sentence."""
+        return [
+            s.strip()
+            for line in self.instructions.splitlines()
+            for s in re.split(r"(?<=[.!?])\s+", line)
+            if s.strip()
+        ]
 
     def __str__(self):
         return self.name
