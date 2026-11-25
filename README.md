@@ -26,7 +26,7 @@ Tell Fridge Forward what's in your fridge and it tells you what you can cook wit
 
 Everything is on a single page (`/`):
 
-1. **Your fridge.** Type ingredients into the box and press Enter. You can add several at once by separating them with commas (`eggs, milk, cheese`). Each ingredient has an **x** button to remove it.
+1. **Your fridge.** Type ingredients into the box and press Enter. You can add several at once by separating them with commas (`eggs, milk, cheese`). Each ingredient has an **x** button to remove it. The suggestions below update straight away, without reloading the page.
 2. **You can make.** This lists every recipe whose ingredients you *all* have, as a card showing the recipe name, its ingredients and a numbered method behind a **Show method** toggle. If nothing matches, it says *"No recipes match your ingredients."*
 
 ### Key User Requirements
@@ -49,7 +49,7 @@ The app is built against these requirements. Every change should keep them worki
 | Language | Python 3.9+ | Developed on 3.9.6 |
 | Framework | Django 4.2 (LTS) | Pinned in `requirements.txt`. 4.2 is the newest Django that supports Python 3.9. |
 | Database | SQLite | A single file (`db.sqlite3`) created on first `migrate`. It is not committed to git. |
-| Frontend | Plain Django templates | No JavaScript and no CSS framework yet |
+| Frontend | Plain Django templates + [HTMX](https://htmx.org) 2.0.3 | HTMX is loaded from cdnjs and only makes add/remove update the page in place. Everything still works with JavaScript turned off. No CSS framework. |
 
 The project uses **Django only**: there is no separate frontend framework or API layer. New features should stay inside that structure (models, views, templates, URLs).
 
@@ -190,6 +190,7 @@ fridge-forward/
     │   └── benchmark_suggestions.py # `manage.py benchmark_suggestions`
     ├── templates/pantry/
     │   ├── home.html           # The single page
+    │   ├── _fridge_and_suggestions.html # Pantry list + suggestions (swapped in by HTMX)
     │   └── _recipe_card.html   # One suggested recipe (name, ingredients, method)
     ├── fixtures/
     │   └── recipes.json        # The recipe dataset (load with `loaddata recipes`)
@@ -204,11 +205,22 @@ fridge-forward/
 | URL | Method | View | What it does |
 |-----|--------|------|--------------|
 | `/` | GET | `home` | Shows the pantry, the add box and matching recipes |
-| `/add/` | POST | `add_ingredient` | Adds one or more comma-separated ingredients, then redirects to `/` |
-| `/remove/<id>/` | POST | `remove_ingredient` | Removes a pantry item, then redirects to `/` |
+| `/add/` | POST | `add_ingredient` | Adds one or more comma-separated ingredients, then redirects to `/` (HTMX requests get the updated list and suggestions instead) |
+| `/remove/<id>/` | POST | `remove_ingredient` | Removes a pantry item, then redirects to `/` (HTMX requests get the updated list and suggestions instead) |
 | `/admin/` | GET/POST | Django admin | Manage recipes and ingredients |
 
 The add and remove routes use the standard *Post/Redirect/Get* pattern: they change data and then redirect, so refreshing the page never re-submits a form.
+
+### Live updates (SR-2.5)
+
+Suggestions always reflect the pantry as it is *now*:
+
+- Nothing is cached on the server. `page_context()` in `views.py` rebuilds the pantry list and runs `makeable_recipes()` on every request.
+- The home page is marked `never_cache`, so the browser's back button can't show out-of-date suggestions.
+- With JavaScript on, the add and remove forms are sent by HTMX (`hx-post`). The view sees the `HX-Request` header and returns only `_fridge_and_suggestions.html`, which HTMX swaps into the page. The add box is cleared and keeps focus, so you can keep typing.
+- With JavaScript off, or if HTMX fails to load, the same forms post normally and the redirect reloads the page.
+
+`SuggestionsUpdateTests` covers both paths: adding the last missing ingredient makes a recipe appear, and removing it makes it disappear.
 
 ---
 
