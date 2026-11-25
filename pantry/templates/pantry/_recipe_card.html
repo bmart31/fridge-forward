@@ -1,0 +1,22 @@
+{# SR-2.4: one suggested recipe. Usage: {% include "pantry/_recipe_card.html" with recipe=r %} #}
+<article class="recipe-card">
+  <h3>{{ recipe.name }}</h3>
+
+  <h4>Ingredients</h4>
+  <ul>
+    {% for ingredient in recipe.ingredients.all %}<li>{{ ingredient.name }}</li>{% endfor %}
+  </ul>
+
+  <details>
+    <summary>Show method</summary>
+    {% with steps=recipe.steps %}
+      {% if steps %}
+        <ol>
+          {% for step in steps %}<li>{{ step }}</li>{% endfor %}
+        </ol>
+      {% else %}
+        <p>No method written yet.</p>
+      {% endif %}
+    {% endwith %}
+  </details>
+</article>
